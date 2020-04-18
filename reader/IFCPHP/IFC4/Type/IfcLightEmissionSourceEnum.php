@@ -1,0 +1,42 @@
+<?php
+
+namespace IFCPHP\IFC4\Type;
+use IFCPHP\IFC4 as IFC;
+
+class IfcLightEmissionSourceEnum extends IFC\Common{
+
+	static public $translationFR = 'Enumération des sources d\'émission lumineuse';
+
+	static public $params = [[
+		'class' => 'Base\Value',
+		'type' => 'object',
+		'enum' => [
+			'COMPACTFLUORESCENT',
+			'FLUORESCENT',
+			'HIGHPRESSUREMERCURY',
+			'HIGHPRESSURESODIUM',
+			'LIGHTEMITTINGDIODE',
+			'LOWPRESSURESODIUM',
+			'LOWVOLTAGEHALOGEN',
+			'MAINVOLTAGEHALOGEN',
+			'METALHALIDE',
+			'TUNGSTENFILAMENT',
+			'NOTDEFINED',
+		],
+	]];
+}
+/* DEFINITION
+TYPE IfcLightEmissionSourceEnum = ENUMERATION OF
+(COMPACTFLUORESCENT
+,FLUORESCENT
+,HIGHPRESSUREMERCURY
+,HIGHPRESSURESODIUM
+,LIGHTEMITTINGDIODE
+,LOWPRESSURESODIUM
+,LOWVOLTAGEHALOGEN
+,MAINVOLTAGEHALOGEN
+,METALHALIDE
+,TUNGSTENFILAMENT
+,NOTDEFINED);
+END_TYPE;
+*/

@@ -1,0 +1,12 @@
+ENTITY IfcPropertyEnumeration
+ SUBTYPE OF (IfcPropertyAbstraction);
+	Name : IfcLabel;
+	EnumerationValues : LIST [1:?] OF UNIQUE IfcValue;
+	Unit : OPTIONAL IfcUnit;
+ UNIQUE
+	UR1 : Name;
+ WHERE
+	WR01 : SIZEOF(QUERY(temp <* SELF.EnumerationValues | 
+               NOT(TYPEOF(SELF.EnumerationValues[1]) = TYPEOF(temp))
+               )) = 0;
+END_ENTITY;
