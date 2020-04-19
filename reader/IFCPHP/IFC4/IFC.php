@@ -6,7 +6,25 @@ use IFCPHP\IFC4;
 
 class IFC{
 
+  //singleton
+  private static $_instance = null;
   public $lines = [];
+
+
+
+  //singleton instanciation
+  private function __construct() {}
+  public static function getInstance() {
+     if(is_null(self::$_instance)) {
+       self::$_instance = new IFC();  
+     }
+ 
+     return self::$_instance;
+   }
+
+
+
+  
 
   public function parseLine(string $line) {
     if(!preg_match('/^#(\d+)=([A-Z0-9]+)\((.*)\);$/',$line,$matches)) throw new Exception('line format does not match:'.$line);
@@ -20,7 +38,11 @@ class IFC{
 //   $valuesString = "((#1,#2),(#3,#4))";
     $values = self::parseValuesString($valuesString);
 
-    $this->lines[$refNum] = new $class($values);
+    $this->lines[$refNum] = new $class($values,$refNum);
+  }
+
+  public function getElementByRef($refNum) {
+    return $this->lines[$refNum];
   }
 
 

@@ -281,6 +281,10 @@ foreach($out['type'] as $num => $entity) {
   $class .= 'extends IFC\Common';
   $class .= '{'."\n\n";
 
+
+  $class .= "\tstatic public \$elementName = '".strtoupper($entity['name'])."';\n\n";
+
+
   if(isset($translationFr[strtolower($entity['name'])])) {
     $trad = preg_replace('/\'/','\\\'',$translationFr[strtolower($entity['name'])]);
     $class .= "\tstatic public \$translationFR = '$trad';\n\n";
@@ -341,6 +345,8 @@ foreach($out['entity'] as $num => $entity) {
   }
   
   $class .= '{'."\n\n";
+
+  $class .= "\tstatic public \$elementName = '".strtoupper($entity['name'])."';\n\n";
 
   if(isset($translationFr[strtolower($entity['name'])])) {
     $trad = preg_replace('/\'/','\\\'',$translationFr[strtolower($entity['name'])]);
@@ -461,22 +467,42 @@ foreach(['BOOLEAN','INTEGER','LOGICAL','REAL','BINARY','NUMBER','SELECT','STRING
   if($baseName == 'STRING') $baseName = 'VALUE';
 
   $name = ucfirst(strtolower($baseName));
-  $class = '<?php'."\n";
-  $class .= ''."\n";
+  $class = '<?php'."\n\n";
   $class .= 'namespace IFCPHP\\'.$schema.'\\Base;'."\n";
-  $class .= 'use IFCPHP\\'.$schema.' as IFC;'."\n";
-  $class .= ''."\n";
+  $class .= 'use IFCPHP\\'.$schema.' as IFC;'."\n\n";
   $class .= 'class '.$name.' ';
-  $class .= 'extends IFC\Common';
-  $class .= '{'."\n\n";
-  $class .= "\tpublic function __construct(\$value) {\n";
-  $class .= "\t\t\$this->values[0] = \$value;\n";
-  $class .= "\t}\n";
+  $class .= 'extends Param {'."\n\n";
   $class .= '}'."\n";
 
   file_put_contents('out/IFCPHP/'.$schema.'/Base/'.$name.'.php', $class);
 }
 
+
+
+  $class = '<?php'."\n";
+  $class .= 'namespace IFCPHP\\'.$schema.'\\Base;'."\n";
+  $class .= 'use IFCPHP\\'.$schema.' as IFC;'."\n\n";
+
+  $class .= 'class Param extends IFC\Common {'."\n";
+
+  $class .= "\t".'public function __construct($value) {'."\n";
+  $class .= "\t\t".'$this->values[0] = $value;'."\n";
+  $class .= "\t".'}'."\n\n";
+
+  $class .= "\t".'public function render($renderType,$options = []) {'."\n";
+  $class .= "\t\t".'if($renderType == \'html\') {'."\n";
+  $class .= "\t\t\t".'if(preg_match(\'/^#(\d+)$/\',$this->values[0],$matches)) {'."\n";
+  $class .= "\t\t\t".'$oElement = IFC\IFC::getInstance()->getElementByRef($matches[1]);'."\n";
+  $class .= "\t\t\t".'return $oElement->render(\'html\');'."\n";
+  $class .= "\t\t".'}'."\n";
+  $class .= "\t\t".'$html = $this->values[0];'."\n";
+  $class .= "\t\t".'return $html;'."\n";
+  $class .= "\t".'}'."\n";
+  $class .= "\t\t".'throw new Exception(\'render not found: \'.$renderType);'."\n";
+  $class .= "\t".'}'."\n";
+  $class .= '}'."\n";
+
+  file_put_contents('out/IFCPHP/'.$schema.'/Base/Param.php', $class);
 
 
 //print_r($);

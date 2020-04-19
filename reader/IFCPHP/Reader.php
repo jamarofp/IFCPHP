@@ -27,7 +27,7 @@ class Reader{
           $this->_schema = $matches[1];
           $className = '\IFCPHP\\'.$this->_schema.'\IFC';
           try{
-            $this->_ifc  = new $className();
+            $this->_ifc  = $className::getInstance();
           } catch(Throwable $e) {
             throw new Exception('IFC schema not found:'.$this->_schema);
           }
@@ -39,6 +39,17 @@ class Reader{
       }
     }
     fclose($handle);
-    print_r($this->_ifc->lines);
 	} //end __construct
+
+   public function getElementByRef($refNum) {
+    return $this->_ifc->getElementByRef($refNum);
+  }
+
+  public function getOElements($elementName):array {
+    $out = [];
+    foreach($this->_ifc->lines as $line) {
+      if($line::$elementName == $elementName) array_push($out,$line);
+    }
+    return $out;
+  }
 }
