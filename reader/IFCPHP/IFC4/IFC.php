@@ -37,7 +37,6 @@ class IFC{
 //   $valuesString = "'d90775e9_7071_491c_a93',#5,'house',$,$,$,$,(#11),#19";
 //   $valuesString = "((#1,#2),(#3,#4))";
     $values = self::parseValuesString($valuesString);
-
     $this->lines[$refNum] = new $class($values,$refNum);
   }
 

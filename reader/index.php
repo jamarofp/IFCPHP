@@ -28,6 +28,7 @@ $oIFC = new \IFCPHP\Reader('../ifc_files_examples/house.ifc');
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
       .ui-accordion .ui-accordion-content{
         padding: 0 0 0 10px !important;
@@ -39,6 +40,37 @@ $oIFC = new \IFCPHP\Reader('../ifc_files_examples/house.ifc');
       echo $oIFC->getOElements('IFCPROJECT')[0]->render('html');
 //      echo $oIFC->getOElements('IFCPROJECT')[0]->getValueString();
     ?>
+
+    <div id="mynetwork"></div>
+
+    <script type="text/javascript">
+      var container = document.getElementById('mynetwork');
+      var dot = 'dinetwork {node[shape=circle]; }';
+      var data = vis.parseDOTNetwork(dot);
+      var network = new vis.Network(container, data);
+
+
+      network.body.data.nodes.add({label:'Projet',id:<?php echo $oIFC->getOElements('IFCPROJECT')[0]->refNum; ?>});
+
+      network.on("click", function (params) {
+          let nodeId = this.getNodeAt(params.pointer.DOM);
+          if(nodeId) {
+            $.ajax({
+              url: "vis.php?elementRef="+nodeId
+            })
+            .done(function( data ) {
+              data.nodes.forEach(node => {
+                try{
+                  network.body.data.nodes.add(node);
+                } catch(e) {}
+                network.body.data.edges.add([{from: data.origin, to: node.id}]);
+              });
+            });
+          }
+      });
+
+    </script>
+
   </body>
 
   <script type="text/javascript">

@@ -6,17 +6,25 @@ class Common{
 
   public $values = [];
   public $refNum = 0;
-  public $paramDefinition = [];
+  public $paramName = '';
 
-  public function __construct($values,$refNum = 0,$paramDefinition = []) {
+  public function __construct($values,$refNum = 0,$paramName = '') {
     $this->refNum = $refNum;
+
 
     if(empty($this->refNum) && preg_match('/#(\d+)/',$values,$matches)) {
       $this->refNum = $matches[1];
     }
 
-    $this->paramDefinition = $paramDefinition;
+
+    $this->paramName = $paramName;
     if(isset(static::$params)) {
+
+
+      if(empty(static::$params) && is_string($values) && !empty($values) && preg_match('/^#(\d+)$/',$values,$matches)) {
+        $className = 'IFCPHP\IFC4\Base\Value';
+        $this->values[0] =  new $className($values,$matches[1]);
+      }
       if(is_array($values)) {
         if(count($values) != count(static::$params)) {
           print_r($values);
@@ -26,12 +34,12 @@ class Common{
         foreach(static::$params as $num => $param) {
           if($param['type'] == 'object') {
             $className = 'IFCPHP\IFC4\\'.$param['class'];
-            $this->values[$num] =  new $className($values[$num],0,$param);
+            $this->values[$num] =  new $className($values[$num],0,$param['name']);
           } else if($param['type'] == 'array') {
             $className = 'IFCPHP\IFC4\\'.$param['class'];
             if(is_array($values[$num])) {
               foreach($values[$num] as $value) {
-                $this->values[$num][] =  new $className($value); 
+                $this->values[$num][] =  new $className($value,0,$param['name']); 
               }
             }
           } else {
@@ -55,6 +63,7 @@ class Common{
 
   public function getValueString($removeEmptyValues = true):string {
     $string = '';
+
     foreach($this->values as $num => $elem) {
       if(is_array($elem) && count($elem) > 1) {
         $string .= '(';
@@ -74,8 +83,8 @@ class Common{
 
 
   public function getTitle():string {
-    $elementName = @$this->paramDefinition['name'];
-    if(!empty($elementName)) $elementName .= ' - ';
+    $elementName = '';
+    if(isset($this->paramName) && !empty($this->paramName)) $elementName .= $this->paramName.' - ';
     if(isset($this::$translationFR)) $elementName .= $this::$translationFR;
     else $elementName .= $this::$elementName;
     return $elementName;
@@ -84,6 +93,13 @@ class Common{
   public function getOLinks():array {
     $out = [];
     if(empty($this->refNum)) return $out;
+    preg_match_all('/#(\d+)/',$this->getValueString(false),$matches);
+    if($matches) {
+      foreach($matches[1] as $refNum) {
+        if($refNum == $this->refNum) continue;
+        array_push($out,IFC::getInstance()->lines[$refNum]);
+      }
+    }
     foreach(IFC::getInstance()->lines as $ref => $oElement) {
       if($ref == $this->refNum) continue;
       if(preg_match('/#'.$this->refNum.',?\)?/',$oElement->getValueString(false))) {

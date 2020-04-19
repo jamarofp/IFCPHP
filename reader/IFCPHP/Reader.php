@@ -41,7 +41,7 @@ class Reader{
     fclose($handle);
 	} //end __construct
 
-   public function getElementByRef($refNum) {
+  public function getElementByRef($refNum) {
     return $this->_ifc->getElementByRef($refNum);
   }
 
@@ -51,5 +51,19 @@ class Reader{
       if($line::$elementName == $elementName) array_push($out,$line);
     }
     return $out;
+  }
+
+
+  public function getGraph():string {
+    $graph = '';
+
+    foreach($this->_ifc->lines as $refNum => $line) {
+      if(preg_match_all('/#(\d+)/',$line->getValueString(),$matches)) {
+        foreach($matches[1] as $num => $ref) {
+          $graph .= ' '.$refNum.' -> '.$ref.';';
+        }
+      }
+    }
+    return $graph;
   }
 }
